@@ -23,9 +23,9 @@ private:
 	json::value valuesJson;
 
 public:
-	RestManager();
+	RestManager(char *dirPath);
 	~RestManager();
-	void setFilesJson(string dirPath);
+	void setFilesJson(char *dirPath);
 	json::value getFilesJson();
 	void setChosenFileAndCompression(string filePath, string compression);
 	void setCompressedFile(string filePath);

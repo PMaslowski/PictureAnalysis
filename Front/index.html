@@ -18,46 +18,19 @@
 	</div>
 
 	<div class="files_navigator">
-		<p style="position:absolute;margin-top:2.5%;left:5%;font-family:Arial;font-size:14px;color:#909090">0</p>
+		<p style="position:absolute;margin-top:2.5%;left:5%;font-family:Arial;font-size:14px;color:#909090">50</p>
 		<p style="position:absolute;margin-top:2.5%;right:5%;font-family:Arial;font-size:14px;color:#909090">100</p>
-		<input type="range" min="50" max="100"/>
+		<input id="compressionPercentage" type="range" min="50" max="100"/>
 		<div class="list">
 			<div class="list_header">
 				<p>Our files</p>
 			</div>
-			<ul style="list-style:none;margin:0;padding:0">
-				<li>
-				<button class="listButton active">File 1</button>
-				</li>
-				<li>
-				<button class="listButton">File 2</button>
-				</li>
-				<li>
-				<button class="listButton">File 3</button>
-				</li>
-				<li>
-				<button class="listButton">File 4</button>
-				</li>
-				<li>
-				<button class="listButton">File 5</button>
-				</li>
+			<ul id="filesList" style="list-style:none;margin:0;padding:0">
 			</ul>
 		</div>
 		<button type="button" id="visualizeButton" style="margin-top:5%;margin-left:auto">
 			&#160;VISUALIZE&#160;
 		</button>
-		<script>
-			$(function(){
-				$('div.list li button.listButton').on('click', function(){
-					$('div.list li button.listButton.active').removeClass('active');
-					$(this).addClass('active');
-				});
-				
-				$('#visualizeButton').on('click', function(){
-					
-				});
-			});
-		</script>
 	</div>
 
 	<div class="data_holder">
@@ -99,13 +72,17 @@
 		<div class="additional_holder">
 			<div class="content" style="position:absolute;top:20%;left:15%;right:55%;bottom:20%">
 				<div class="list_header">Volume</div>
-				<Form name='Form1'>
+				<Form name='volumeForm'>
 					<input name='dispVolume' style="position:absolute;top:2em;text-align:center;background-color:transparent;border-style:none" 
 						   value=" " readonly/>
 				</Form>
 			</div>
 			<div class="content" style="position:absolute;top:20%;left:55%;right:15%;bottom:20%">
 				<div class="list_header">Error</div>
+				<Form name='errorForm'>
+					<input name='dispError' style="position:absolute;top:2em;text-align:center;background-color:transparent;border-style:none" 
+						   value=" " readonly/>
+				</Form>
 			</div>
 		</div>
 		
@@ -115,117 +92,57 @@
 		<img src="resources/hexagon_logo.png" alt="logo" style="width:250px;padding-left:35px;padding-top:0px"/>
 	</div>
 	
-	<div class="cover" id="modal" style="display:none">
-		<div class="dialog">
-			<div id="header" style="position:relative;height:20%">
-			    <!--<button type="button" style="position:absolute;top:20%;left:5%">
-					&#160;CHOOSE FILE&#160;
-			    </button> -->
-				<label class="upload">
-    				<input type="file" id="fileInput" onChange="getStats(this.value)"/>
-    				<span >CHOOSE FILE</span>
-				</label>
-				<script>
-					function getStats(fName){
-						var fullName = fName;
-						shortName = fullName.match(/[^\/\\]+$/);
-						document.forms.Form1.dispName.value = shortName
-					}
-				</script>
-			</div>
-			<div id="middle" style="position:relative;height:60%">
-				<div style="position:absolute;top:10%;left:10%;right:10%;bottom:40%">
-					<div class="content" id="file_name" style="left:0em;right:0em">
-						<div class="list_header">Chosen file</div>
-						<Form name='Form1'>
-							<input name='dispName' style="position:absolute;top:2em;text-align:center;background-color:transparent;border-style:none" 
-								   value="No file selected" readonly/>
-						</Form>
-					</div>
-				</div>
-				<div style="position:absolute;bottom:10%;top:70%;left:10%;right:10%">
-					<p style="position:absolute;margin-top:0;left:0;font-family:Arial;font-size:14px">50</p>
-					<p style="position:absolute;margin-top:0;right:0;font-family:Arial;font-size:14px">100</p>
-					<input type="range" min="50" max="100"/>
-				</div>
-			</div>
-			<div id="footer" style="position:relative;height:20%">
-				<button type="button" style="position:absolute;top:20%;right:10%" onclick="document.getElementById('modal').style.display='none';getStats('No file selected')">
-					&#160;CANCEL&#160;
-			    </button>
-			    <button type="button" id="okButton" style="position:absolute;top:20%;left:10%">
-					&#160;OK&#160;
-			    </button>  
-			</div>
-		</div>
-	</div>
-	
 	<script>
 		$(function(){
+			document.forms.volumeForm.dispVolume.value = " ";
+			document.forms.errorForm.dispError.value = " ";
 			
-			$('#okButton').on('click', function(){
-				//Post ply file
-				//Get converted ply file
+			$.ajax({
+				type: 'GET',
+				url: 'http://localhost:8080/files',
+				success: function(files){
+					console.log('success', files);
+					$.each(files, function(i, file){
+						var li = $('<li/>')
+							.appendTo($('#filesList'));
+						var button = $('<button/>')
+							.text(file)
+							.addClass('listButton')
+							.appendTo(li);
+					});
+				}
+			});
+			
+			$(document).on('click', '#filesList li .listButton', function(){
+				$('#filesList li .listButton.active').removeClass('active');
+				$(this).addClass('active');
 			});
 			
 			$('#countVolumeButton').on('click', function(){
-				//Post selected points in ply file
-				//Get counted volume
+				$.ajax({
+					type: 'GET',
+					url: 'http://localhost:8080/values',
+					success: function(data){
+						console.log('success', data);	
+						var volume = data.volume;
+						document.forms.volumeForm.dispVolume.value = volume;
+						var error = data.error;
+						document.forms.errorForm.dispError.value = error;
+					}
+				});
 			});
 			
-			function postPlyFile(data){
+			$('#visualizeButton').on('click', function(){
+				var chosenFile = {
+					chosen: $('#filesList li .listButton.active').text(),
+					compression: $('#compressionPercentage').val()
+				};
 				$.ajax({
 					type: 'POST',
-					url: '/api/plyfile',
-					data: data,
-					success: function(){
-						console.log('File successfully passed');	
-					},
-					error: function(){
-						alert('Error sending file!');	
-					}
+					url: 'http://localhost:8080/chosenfile',
+					data: chosenFile
 				});
-			};
-			
-			function getPlyFile(){
-				$.ajax({
-					type: 'GET',
-					url: '/api/plyfile',
-					success: function(data){
-						console.log('success', data);	
-					},
-					error: function(){
-						alert('Error loading converted file!');	
-					}
-				});
-			};
-			
-			function postSelectedPoints(data){
-				$.ajax({
-					type: 'POST',
-					url: '/api/volume',
-					data: data,
-					success: function(){
-						console.log('Selection successfully passed');	
-					},
-					error: function(){
-						alert('Error sending selected points!');	
-					}
-				});
-			};
-			
-			function getVolumeAndError(){
-				$.ajax({
-					type: 'GET',
-					url: 'api/volume',
-					success: function(data){
-						console.log('success', data);	
-					},
-					error: function(){
-						alert('Error loading counted volume and error!');	
-					}
-				});
-			};
+			});
 					   
 		});
 	</script>

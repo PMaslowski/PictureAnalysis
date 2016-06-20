@@ -13,14 +13,10 @@ using namespace web::http::experimental::listener;
 RestManager* restManagerRef;
 
 void handle_files_get(http_request request){
-	//MOCKUP
-	json::value mock;
-	mock[L"1"] = json::value::string(L"file1.ply");
-	mock[L"2"] = json::value::string(L"file2.ply");
-	mock[L"3"] = json::value::string(L"file3.ply");
-	mock[L"4"] = json::value::string(L"file4.ply");
-	mock[L"5"] = json::value::string(L"file5.ply");
-	request.reply(status_codes::OK, json::value(mock));
+	http_response response(status_codes::OK);
+	response.headers().add(L"Access-Control-Allow-Origin", L"*");
+	response.set_body(json::value(restManagerRef->getFilesJson()));
+	request.reply(response);
 }
 
 pplx::task<void> initFilesListener(){
@@ -40,16 +36,32 @@ pplx::task<void> initFilesListener(){
 }
 
 void handle_chosen_file_get(http_request request){
-	//MOCKUP
-	json::value mock;
-	mock[L"chosen"] = json::value::string(L"file1.ply");
-	mock[L"compression"] = json::value::string(L"75");
-	mock[L"compressedFile"] = json::value::string(L"compressed.ply");
-	request.reply(status_codes::OK, json::value(mock));
+	http_response response(status_codes::OK);
+	response.headers().add(L"Access-Control-Allow-Origin", L"*");
+	response.set_body(restManagerRef->getChosenFileJson());
+	request.reply(response);
 }
 
 void handle_chosen_file_post(http_request request){
-
+	auto sentData = request.extract_string().get();
+	string dataInStdString = utility::conversions::to_utf8string(sentData);
+	string pathToChosenFile, compression, ereaseBuffor;
+	size_t position;
+	ereaseBuffor = "chosen=";
+	position = dataInStdString.find(ereaseBuffor);
+	if (position != string::npos){
+		dataInStdString.erase(position, ereaseBuffor.length());
+	}
+	ereaseBuffor = "compression=";
+	position = dataInStdString.find(ereaseBuffor);
+	if (position != string::npos){
+		dataInStdString.erase(position, ereaseBuffor.length());
+	}
+	position = dataInStdString.find("&");
+	pathToChosenFile = dataInStdString; compression = dataInStdString;
+	pathToChosenFile.erase(pathToChosenFile.begin() + position, pathToChosenFile.end());
+	compression.erase(compression.begin(), compression.begin() + position+1);
+	restManagerRef->setChosenFileAndCompression(pathToChosenFile, compression);
 }
 
 pplx::task<void> initChosenFileListener(){
@@ -90,11 +102,10 @@ pplx::task<void> initSelectionListener(){
 }
 
 void handle_values_get(http_request request){
-	//MOCKUP
-	json::value mock;
-	mock[L"volume"] = json::value::string(L"150");
-	mock[L"error"] = json::value::string(L"0.05");
-	request.reply(status_codes::OK, json::value(mock));
+	http_response response(status_codes::OK);
+	response.headers().add(L"Access-Control-Allow-Origin", L"*");
+	response.set_body(restManagerRef->getValues());
+	request.reply(response);
 }
 
 pplx::task<void> initValuesListener(){
