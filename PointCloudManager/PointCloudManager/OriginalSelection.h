@@ -4,6 +4,7 @@
 #include "stdlib.h"
 #include "string"
 #include "rply.h"
+#include "Point.h"
 using namespace std;
 
 class OriginalSelection
@@ -11,20 +12,22 @@ class OriginalSelection
 public:
 	OriginalSelection();
 
-	static int pnpoly(int nvert, vector<double> vertx, vector<double> verty, double testx, double testy);
 
-	int readPlyFile(char *path, vector<size_t> indexForCheck, vector< vector<double> > &result);
+	vector<Point> GetOriginalSelection(char *pathToFile, vector<size_t> selectedIndexes);
+	int readPlyFile(char *path);
+	vector<Point> getPointsFromFile(string filePath);
+	static vector<vector<double> > points;
 
-	static void staticVOid();
+private:
 
-	static vector<vector<double> > data;
+	vector<Point> checkPoints(vector<size_t> index);
+	static int IsInPolygin(int nvert, vector<double> vertx, vector<double> verty, double testx, double testy);
+	static int count3;
+	static bool pair;
 
-	static vector<vector<double> > checkPoints(vector<size_t> index, vector<vector<double> > points);
 
-	static int vertex_cb(p_ply_argument argument);
-
+	static int GetVertex(p_ply_argument argument);
 	static int currentIndex;
-
 	static int count;
 
 };
