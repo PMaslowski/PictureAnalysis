@@ -16,14 +16,19 @@ public:
 	
 	vector<Point> Convert(vector<Point> LLPoints);
 	
+
+
+
+	void LLtoUTM(int eId, double Lat, double Long, double& Northing, double& Easting, int& Zone);
+
+	
+
+
 private:
-
-	bool downCompare(UTMPoint point1, UTMPoint point2);
-	bool leftCompare(UTMPoint point1, UTMPoint point2);
-	void offset(vector<Point> &utmPoints, UTMPoint leftPoint, UTMPoint downPoint);
-
-	UTMPoint LLtoUTM(double Lat, double Long, double& Northing, double& Easting, int& Zone);
-
+	bool downCompare(Point point1, Point point2);
+	bool leftCompare(Point point1, Point point2);
+	void offset(vector<Point> &utmPoints, Point leftPoint, Point downPoint);
+	
 	double PI = 3.14159265;
 	double deg2rad = PI / 180;
 	double rad2deg = 180 / PI;
