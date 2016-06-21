@@ -118,6 +118,9 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Library Include="tet.lib" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\libevent_vc120.2.1.4.0\build\native\libevent_vc120.targets" Condition="Exists('..\packages\libevent_vc120.2.1.4.0\build\native\libevent_vc120.targets')" />

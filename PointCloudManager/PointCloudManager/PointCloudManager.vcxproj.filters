@@ -108,4 +108,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Library Include="tet.lib" />
+  </ItemGroup>
 </Project>
